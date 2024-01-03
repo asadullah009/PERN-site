@@ -11,9 +11,12 @@ datasource db {
 }
 
 model UserAuth {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(uuid())
   name       String?
   email      String   @unique
-  password   String
+  password   String?
+  age        Int?
+  gender     String?
   created_at DateTime @default(now())
+
 }
