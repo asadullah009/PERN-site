@@ -8,6 +8,9 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import UpdateDialog from "../View/UpdateDialog";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 
 axios.defaults.withCredentials = true;
 let first = true;
@@ -15,20 +18,26 @@ let first = true;
 const Welcome = () => {
   const [user, setUser] = useState();
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const history = useNavigate();
+  const { userId } = useParams();
 
-  
+
+
 
   const refresh = async () => {
-  
+
     const res = await axios.get("http://localhost:8080/userauth/refresh", {
       withCredentials: true,
     }).catch(err => {
       console.error(err);
+      return () => history("/user")
+
     })
-  
-  const data = res.data;
-  setUser(data.user);
-}
+
+    const data = res.data;
+    console.log("🚀 ~ file: Welcome.js:38 ~ refresh ~ data:", data)
+    setUser(data.user);
+  }
   const sendRequest = async () => {
     try {
       const res = await axios.get("http://localhost:8080/userauth/user", {
@@ -41,15 +50,15 @@ const Welcome = () => {
     }
   };
   useEffect(() => {
-    if(first){
+    if (first) {
       first = false;
       sendRequest();
     }
-    let intervel = setInterval(() =>{
+    let intervel = setInterval(() => {
       refresh();
-    }, 20*1000)
+    }, 20 * 1000)
 
-    return ()=>clearInterval(intervel);
+    return () => clearInterval(intervel);
 
   }, []);
 
@@ -60,7 +69,7 @@ const Welcome = () => {
   const handleClose = () => {
     setUpdateDialogOpen(false);
   };
-  
+
 
   return (
     <Box
@@ -109,7 +118,7 @@ const Welcome = () => {
         </CardContent>
       </Card>
       {
-        updateDialogOpen && <UpdateDialog open={updateDialogOpen} handleClose={handleClose} />
+        updateDialogOpen && <UpdateDialog open={updateDialogOpen} handleClose={handleClose} userId={userId} user={user.name} />
       }
     </Box>
   );

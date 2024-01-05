@@ -8,11 +8,11 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 
 const userAuthRouter = require('./routes/userAuthRoute');
+const { PORT, SECRET, CLIENTID, CLIENTSECRET } = require('./schema/secrets');
 
 
 
 require('dotenv').config();
-const PORT = process.env.PORT;
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 
 app.use(cookieParser());
@@ -20,7 +20,7 @@ app.use(express.json());
 
 app.use(
     session({
-        secret: process.env.SECRET,
+        secret: SECRET,
         resave: false,
         saveUninitialized: false,
     })
@@ -30,13 +30,13 @@ app.use(passport.session());
 
 passport.use(new GoogleStrategy(
     {
-        clientID: process.env.clientID,
-        clientSecret: process.env.clientSecret,
+        clientID: CLIENTID,
+        clientSecret: CLIENTSECRET,
         callbackURL: 'http://localhost:8080/auth/google/callback',
     },
     (accessToken, refreshToken, profile, done) => {
         console.log(profile)
-.clientID.clientID
+            .clientID.clientID
         return done(null, profile);
     }
 )
@@ -58,16 +58,16 @@ app.use('/userauth', userAuthRouter)
 app.get(
     '/auth/google',
     passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] })
-  );
-  
-  app.get(
+);
+
+app.get(
     '/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     function (req, res) {
-      // Successful authentication, redirect to welcome page or do something else
-      res.redirect('/welcome');
+        // Successful authentication, redirect to welcome page or do something else
+        res.redirect('/welcome');
     }
-  );
+);
 
 
 app.listen(PORT, () => {

@@ -1,8 +1,9 @@
 const prisma = require('../DB/db.config');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { JWT_SECRETS } = require('../schema/secrets');
 
-const JWT_SECRET = "secret"
+
 
 
 // Create User
@@ -82,7 +83,7 @@ const UserLogin = async (req, res, next) => {
         }
 
         // Create JWT token
-        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '40s' });
+        const token = jwt.sign({ userId: user.id }, JWT_SECRETS, { expiresIn: '40s' });
 
         res.cookie(String(user.id), token, {
             path: "/",
@@ -102,9 +103,12 @@ const varifyToken = async (req, res, next) => {
     const cookies = req.headers.cookie;
     const token = cookies.split("=")[1];
     console.log(token);
+    if (!token) {
+        return res.status(403).json({ message: 'Empty Or Invalid Token ' });
+    }
 
     try {
-        const decodedToken = jwt.verify(token, JWT_SECRET);
+        const decodedToken = jwt.verify(token, JWT_SECRETS);
         console.log('Token verified successfully');
 
         const user_id = decodedToken.userId;
@@ -133,18 +137,16 @@ const refreshToken = (req, res, next) => {
         return res.status(400).json({ message: "Couldn't find token" });
     }
 
-    jwt.verify(prevToken, JWT_SECRET, (err, decoded) => {
+    jwt.verify(prevToken, JWT_SECRETS, (err, decoded) => {
         if (err) {
             console.error(err);
-            return res.status(403).json({ message: "Authentication failed" });
+            return res.status(403).json({ message: "Token has expired. Please log in again" });
         }
 
-        const { id: userId } = decoded; // Extracting 'id' from decoded token
+        const { userId } = decoded; // Extracting 'userId' from decoded token
 
-        res.clearCookie(`${userId}`); // Clear the existing cookie
-
-        const newToken = jwt.sign({ userId }, JWT_SECRET, {
-            expiresIn: "35s",
+        const newToken = jwt.sign({ userId }, JWT_SECRETS, {
+            expiresIn: "35s", // Refreshed token expiration time
         });
 
         console.log("Regenerated Token\n", newToken);
@@ -156,26 +158,22 @@ const refreshToken = (req, res, next) => {
             sameSite: "lax",
         });
 
-        req.id = userId; // Assign the userId to a property in the request object
+        req.userId = userId;
         next();
     });
 };
 
 const updateUserDetails = async (req, res) => {
-    const userId = req.params.id; 
-    const { email, name, age, gender } = req.body;
-
     try {
-        const updatedUser = await prisma.userAuth.update({
-            where: { id: userId }, 
-            data: {
-                email,
-                name,
-                age,
-                gender,
+        const userDeatils = req.body;
+        const updateUserDeatils = await prisma.UserAuth.update({
+            where: {
+                id: +req.params.id,
             },
-        });
-        res.json(updatedUser);
+            data: userDeatils
+        })
+
+        return res.json(updateUserDeatils)
     } catch (error) {
         console.error('Error updating user details:', error);
         res.status(500).json({ message: 'Error updating user details' });
@@ -186,18 +184,18 @@ const logout = (req, res, next) => {
     const cookies = req.headers.cookie;
     const prevToken = cookies.split("=")[1];
     if (!prevToken) {
-      return res.status(400).json({ message: "Couldn't find token" });
+        return res.status(400).json({ message: "Couldn't find token" });
     }
-    jwt.verify(String(prevToken), process.env.JWT_SECRET, (err, user) => {
-      if (err) {
-        console.log(err);
-        return res.status(403).json({ message: "Authentication failed" });
-      }
-      res.clearCookie(`${user.id}`);
-      req.cookies[`${user.id}`] = "";
-      return res.status(200).json({ message: "Successfully Logged Out" });
+    jwt.verify(String(prevToken), process.env.JWT_SECRETS, (err, user) => {
+        if (err) {
+            console.log(err);
+            return res.status(403).json({ message: "Authentication failed" });
+        }
+        res.clearCookie(`${user.id}`);
+        req.cookies[`${user.id}`] = "";
+        return res.status(200).json({ message: "Successfully Logged Out" });
     });
-  };
+};
 
 module.exports = {
     UserRegister,

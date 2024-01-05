@@ -40,50 +40,57 @@ const Signup = () => {
         alignItems: 'center',
         height: '100dvh',
 
-      }}>       
-      <form onSubmit={handleSubmit}>
-        <Box
-          marginLeft="auto"
-          marginRight="auto"
-          width={300}
-          display="flex"
-          flexDirection={"column"}
-          justifyContent="center"
-          alignItems="center"
-        >
-          <Typography variant="h2">Signup</Typography>
+      }}>
+      <Box sx={{
+        border: '1px solid black',
+        borderRadius: '10px',
+        padding: 4
+      }}>
+        <form onSubmit={handleSubmit}>
+          <Box
+            marginLeft="auto"
+            marginRight="auto"
+            width={300}
+            display="flex"
+            flexDirection={"column"}
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Typography variant="h2">Signup</Typography>
 
-          <TextField
-            name="name"
-            onChange={handleChange}
-            value={inputs.name}
-            variant="outlined"
-            placeholder="Name"
-            margin="normal"
-          />
-          <TextField
-            name="email"
-            onChange={handleChange}
-            type={"email"}
-            value={inputs.email}
-            variant="outlined"
-            placeholder="Email"
-            margin="normal"
-          />
-          <TextField
-            name="password"
-            onChange={handleChange}
-            type="password"
-            value={inputs.password}
-            variant="outlined"
-            placeholder="Password"
-            margin="normal"
-          />
-          <Button variant="contained" type="submit">
-            Signup
-          </Button>
-        </Box>
-      </form>
+            <TextField
+              name="name"
+              onChange={handleChange}
+              value={inputs.name}
+              variant="outlined"
+              placeholder="Name"
+              margin="normal"
+            />
+            <TextField
+              name="email"
+              onChange={handleChange}
+              type={"email"}
+              value={inputs.email}
+              variant="outlined"
+              placeholder="Email"
+              margin="normal"
+            />
+            <TextField
+              name="password"
+              onChange={handleChange}
+              type="password"
+              value={inputs.password}
+              variant="outlined"
+              placeholder="Password"
+              margin="normal"
+            />
+            <Button variant="contained" type="submit">
+              Signup
+            </Button>
+          </Box>
+        </form>
+      </Box>
+
     </Box>
   );
 };

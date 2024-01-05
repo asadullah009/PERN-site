@@ -7,15 +7,10 @@ router.post('/register', UserRegister)
 router.post('/login', UserLogin)
 
 // userDeatl Routes
-router.get('/user',varifyToken )
-router.get('/refresh',refreshToken, varifyToken)
-router.put('/Update/:id',updateUserDetails)
-router.post("/logout", varifyToken, logout );
-
-
-
-
-
+router.get('/user', varifyToken)
+router.get('/refresh', refreshToken, varifyToken)
+router.put('/Update/:id', updateUserDetails)
+router.post("/logout", varifyToken, logout);
 
 
 module.exports = router
